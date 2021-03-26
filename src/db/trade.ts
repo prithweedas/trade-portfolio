@@ -1,7 +1,7 @@
 import { db } from './client'
 import { getNextId } from './counter'
 
-type Holding = {
+export type Holding = {
   ticker: string
   avgPrice: number
   amount: number
@@ -94,6 +94,12 @@ export const countTotalQuantityInPortfolio: CountTotalQuantityInPortfolio = asyn
 }
 
 export const getHoldings: GetHoldings = async portfolio => {
+  // INFO:
+  //     - filter using portfolio id
+  //     - create a multiplier variable 1 if type is BUY else -1
+  //     - group by ticker and get totalprice and totalamount
+  //     - filter out any ticker with amount less than 1
+  //     - get average price by totalprice / totalamount
   return await db
     .collection<Trade>('trade')
     .aggregate<Holding>([

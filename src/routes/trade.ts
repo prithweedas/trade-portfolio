@@ -14,6 +14,8 @@ const addTradeHandler: CustomRequestHandler<Omit<Trade, 'id'>> = async (
   res
 ) => {
   try {
+    // TODO: check against a master if ticker passes is valid
+    //       e.g. `TATA POWER XYZ` won't work
     const { type, ticker, portfolio, amount } = req.body
     if (type === 'SELL') {
       const currentAmount = await countTotalQuantityInPortfolio(

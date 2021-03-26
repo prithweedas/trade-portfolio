@@ -4,6 +4,7 @@ import { getAllTrades, getHoldings } from '../db/trade'
 import { checkPortfolio } from '../middlewares/checkPortfolio'
 import { requestvalidator } from '../middlewares/requestValidator'
 import { CustomRequestHandler } from '../types/CustomRequestHandler'
+import { calculateReturns } from '../utils/calculateReturns'
 import { errorResponse } from '../utils/errorResponse'
 import { createPortfolioRequestValidator } from '../utils/validators'
 
@@ -52,9 +53,11 @@ const consolidatedPortfolioHandler: CustomRequestHandler<
       portfolioPromise,
       holdingsPromise
     ])
+    const returns = await calculateReturns(holdings)
     res.status(200).json({
       success: true,
       name,
+      returns,
       holdings
     })
   } catch (error) {
