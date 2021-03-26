@@ -14,6 +14,7 @@ const cleanup = () => {
 process.on('SIGTERM', cleanup)
 process.on('SIGINT', cleanup)
 process.on('uncaughtException', cleanup)
+
 const init = async () => {
   try {
     await db.connect()
@@ -29,5 +30,5 @@ const init = async () => {
   })
   app.listen(3000)
 }
-console.log(process.env.MONGO_CONNECTION_STRING)
+
 init()

@@ -36,6 +36,10 @@ const addTradeRequestSchema: JSONSchemaType<Omit<Trade, 'id'>> = {
     type: {
       type: 'string',
       enum: ['BUY', 'SELL']
+    },
+    amount: {
+      type: 'integer',
+      minimum: 1
     }
   },
   required: ['portfolio', 'price', 'ticker', 'type'],

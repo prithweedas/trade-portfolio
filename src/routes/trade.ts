@@ -5,6 +5,7 @@ import { requestvalidator } from '../middlewares/requestValidator'
 import { CustomRequestHandler } from '../types/CustomRequestHandler'
 import { errorResponse } from '../utils/errorResponse'
 import { addTradeRequestValidator } from '../utils/validators'
+import { addTrade, countTotalQuantityInPortfolio } from '../db/trade'
 
 const router: Router = Router()
 
@@ -13,8 +14,21 @@ const addTradeHandler: CustomRequestHandler<Omit<Trade, 'id'>> = async (
   res
 ) => {
   try {
+    const { type, ticker, portfolio, amount } = req.body
+    if (type === 'SELL') {
+      const currentAmount = await countTotalQuantityInPortfolio(
+        portfolio,
+        ticker
+      )
+      if (currentAmount < amount) {
+        errorResponse(res, 400, 'Amount is greater than current holding')
+        return
+      }
+    }
+    const tradeId = await addTrade(req.body)
     res.status(200).json({
-      success: true
+      success: true,
+      tradeId
     })
   } catch (error) {
     errorResponse(res)
@@ -24,7 +38,7 @@ const addTradeHandler: CustomRequestHandler<Omit<Trade, 'id'>> = async (
 router.post(
   '/',
   requestvalidator(addTradeRequestValidator),
-  checkPortfolio,
+  checkPortfolio('body'),
   addTradeHandler
 )
 

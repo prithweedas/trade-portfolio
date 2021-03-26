@@ -1,4 +1,4 @@
-import { MongoClient, Db, Collection, ObjectID } from 'mongodb'
+import { MongoClient, Db, Collection } from 'mongodb'
 
 type DbHelper = {
   client: MongoClient
