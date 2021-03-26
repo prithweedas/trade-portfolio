@@ -46,15 +46,18 @@ const consolidatedPortfolioHandler: CustomRequestHandler<
 > = async (req, res) => {
   try {
     const { portfolio } = req.params
-    const portfolioName = (await getPortfolio(portfolio)).name
-    const holdings = await getHoldings(portfolio)
+    const portfolioPromise = getPortfolio(portfolio)
+    const holdingsPromise = getHoldings(portfolio)
+    const [{ name }, holdings] = await Promise.all([
+      portfolioPromise,
+      holdingsPromise
+    ])
     res.status(200).json({
       success: true,
-      name: portfolioName,
+      name,
       holdings
     })
   } catch (error) {
-    console.log(error)
     errorResponse(res)
   }
 }
