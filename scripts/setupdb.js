@@ -34,7 +34,9 @@ const portfolioCollection = async db => {
 }
 const tradeCollection = async db => {
   const trade = db.collection('trade')
-  await trade.createIndex({ id: 1 }, { unique: true })
+  const idPromise = trade.createIndex({ id: 1 }, { unique: true })
+  const portfolioIdPromise = trade.createIndex({ portfolio: 1 })
+  await Promise.all([idPromise, portfolioIdPromise])
 }
 
 async function run() {
