@@ -3,7 +3,8 @@ import {
   countTotalExcludingOneTrade,
   deleteTrade,
   getTrade,
-  Trade
+  Trade,
+  updateTrade
 } from '../db/trade'
 import { checkPortfolio } from '../middlewares/checkPortfolio'
 import { requestvalidator } from '../middlewares/requestValidator'
@@ -71,11 +72,34 @@ const deleteTradeHandler: CustomRequestHandler<
   }
 }
 
-const updateTradeHandler: CustomRequestHandler<
-  UpdateTradeRequestBody,
-  { trade: string }
-> = (req, res) => {
-  res.json({ success: true })
+const x: UpdateTradeRequestBody = {
+  amount: 10,
+  trade: 'sdv',
+  price: 10,
+  type: 'BUY'
+}
+
+const updateTradeHandler: CustomRequestHandler<UpdateTradeRequestBody> = async (
+  req,
+  res
+) => {
+  try {
+    const { trade: tradeId, ...updates } = req.body
+    if ('price' in updates) {
+      await updateTrade(tradeId, updates)
+      res.status(200).json({ success: true }).end()
+      return
+    }
+    const trade = await getTrade(tradeId)
+    if ('type' in updates) {
+      return
+    }
+    if ('amount' in updates) {
+      return
+    }
+  } catch (error) {
+    errorResponse(res)
+  }
 }
 
 router.patch(

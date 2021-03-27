@@ -5,6 +5,7 @@ import { tradeRouter } from './routes/trade'
 import { errorResponse } from './utils/errorResponse'
 
 const app = express()
+const PORT = parseInt(process.env.PORT || '3000', 10)
 
 const cleanup = () => {
   db.close()
@@ -28,7 +29,7 @@ const init = async () => {
   app.use('*', (_, res) => {
     errorResponse(res, 404, 'Not Found')
   })
-  app.listen(3000)
+  app.listen(PORT)
 }
 
 init()

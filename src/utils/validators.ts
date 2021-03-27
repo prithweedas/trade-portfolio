@@ -68,38 +68,13 @@ const updateTradeRequestSchema: JSONSchemaType<UpdateTradeRequestBody> = {
   required: ['trade'],
   anyOf: [
     {
-      properties: {
-        trade: {
-          type: 'string'
-        },
-        amount: {
-          type: 'integer'
-        }
-      },
-      required: ['amount', 'trade']
+      required: ['amount']
     },
     {
-      properties: {
-        trade: {
-          type: 'string'
-        },
-        price: {
-          type: 'number'
-        }
-      },
-      required: ['price', 'trade']
+      required: ['price']
     },
     {
-      properties: {
-        trade: {
-          type: 'string'
-        },
-        type: {
-          type: 'string',
-          enum: ['BUY', 'SELL']
-        }
-      },
-      required: ['type', 'trade']
+      required: ['type']
     }
   ]
 }
