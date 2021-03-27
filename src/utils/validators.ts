@@ -1,6 +1,7 @@
 import Ajv, { JSONSchemaType } from 'ajv'
 import { Portfolio } from '../db/portfolio'
 import { Trade } from '../db/trade'
+import { UpdateTradeRequestBody } from '../types/CustomRequestHandler'
 
 export const ajv = new Ajv()
 
@@ -46,9 +47,67 @@ const addTradeRequestSchema: JSONSchemaType<Omit<Trade, 'id'>> = {
   additionalProperties: false
 }
 
+const updateTradeRequestSchema: JSONSchemaType<UpdateTradeRequestBody> = {
+  type: 'object',
+  additionalProperties: false,
+  properties: {
+    trade: {
+      type: 'string'
+    },
+    amount: {
+      type: 'integer'
+    },
+    price: {
+      type: 'number'
+    },
+    type: {
+      type: 'string',
+      enum: ['BUY', 'SELL']
+    }
+  },
+  required: ['trade'],
+  anyOf: [
+    {
+      properties: {
+        trade: {
+          type: 'string'
+        },
+        amount: {
+          type: 'integer'
+        }
+      },
+      required: ['amount', 'trade']
+    },
+    {
+      properties: {
+        trade: {
+          type: 'string'
+        },
+        price: {
+          type: 'number'
+        }
+      },
+      required: ['price', 'trade']
+    },
+    {
+      properties: {
+        trade: {
+          type: 'string'
+        },
+        type: {
+          type: 'string',
+          enum: ['BUY', 'SELL']
+        }
+      },
+      required: ['type', 'trade']
+    }
+  ]
+}
+
 // INFO: compile all schemas during startup
 export const createPortfolioRequestValidator = ajv.compile(
   createPortfolioRequestSchema
 )
 
 export const addTradeRequestValidator = ajv.compile(addTradeRequestSchema)
+export const updateTradeRequestValidator = ajv.compile(updateTradeRequestSchema)

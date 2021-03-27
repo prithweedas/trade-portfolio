@@ -7,9 +7,15 @@ import {
 } from '../db/trade'
 import { checkPortfolio } from '../middlewares/checkPortfolio'
 import { requestvalidator } from '../middlewares/requestValidator'
-import { CustomRequestHandler } from '../types/CustomRequestHandler'
+import {
+  CustomRequestHandler,
+  UpdateTradeRequestBody
+} from '../types/CustomRequestHandler'
 import { errorResponse } from '../utils/errorResponse'
-import { addTradeRequestValidator } from '../utils/validators'
+import {
+  addTradeRequestValidator,
+  updateTradeRequestValidator
+} from '../utils/validators'
 import { addTrade, countTotalQuantityInPortfolio } from '../db/trade'
 import { checkTrade } from '../middlewares/checkTrade'
 
@@ -64,6 +70,20 @@ const deleteTradeHandler: CustomRequestHandler<
     errorResponse(res)
   }
 }
+
+const updateTradeHandler: CustomRequestHandler<
+  UpdateTradeRequestBody,
+  { trade: string }
+> = (req, res) => {
+  res.json({ success: true })
+}
+
+router.patch(
+  '/',
+  requestvalidator(updateTradeRequestValidator),
+  // checkTrade('body'),
+  updateTradeHandler
+)
 
 router.delete('/:trade', checkTrade('params'), deleteTradeHandler)
 

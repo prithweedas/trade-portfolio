@@ -27,6 +27,10 @@ type GetTrade = (trade: string) => Promise<Trade>
 type GetHoldings = (portfolio: string) => Promise<ReadonlyArray<Holding>>
 type DoesTradeExists = (trade: string) => Promise<boolean>
 type DeleteTrade = (trade: string) => Promise<void>
+type UpdateTrade = (
+  trade: string,
+  updates: Partial<Pick<Trade, 'amount' | 'price' | 'type'>>
+) => Promise<void>
 
 export const addTrade: AddTrade = async trade => {
   const id = await getNextId('TRADE')
@@ -213,4 +217,13 @@ export const countTotalExcludingOneTrade: CountTotalExcludingOneTrade = async (
     .toArray()
   if (result.length === 0) return 0
   else return result[0].total
+}
+
+export const updateTrade: UpdateTrade = async (trade, updates) => {
+  await db.collection<Trade>('trade').updateOne(
+    { id: trade },
+    {
+      $set: updates
+    }
+  )
 }
