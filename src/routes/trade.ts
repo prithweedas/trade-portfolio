@@ -1,11 +1,17 @@
 import { Router } from 'express'
-import { Trade } from '../db/trade'
+import {
+  countTotalExcludingOneTrade,
+  deleteTrade,
+  getTrade,
+  Trade
+} from '../db/trade'
 import { checkPortfolio } from '../middlewares/checkPortfolio'
 import { requestvalidator } from '../middlewares/requestValidator'
 import { CustomRequestHandler } from '../types/CustomRequestHandler'
 import { errorResponse } from '../utils/errorResponse'
 import { addTradeRequestValidator } from '../utils/validators'
 import { addTrade, countTotalQuantityInPortfolio } from '../db/trade'
+import { checkTrade } from '../middlewares/checkTrade'
 
 const router: Router = Router()
 
@@ -18,6 +24,7 @@ const addTradeHandler: CustomRequestHandler<Omit<Trade, 'id'>> = async (
     //       e.g. `TATA POWER XYZ` won't work
     const { type, ticker, portfolio, amount } = req.body
     if (type === 'SELL') {
+      // INFO: check if there is enough of that ticker in holdings to sell
       const currentAmount = await countTotalQuantityInPortfolio(
         portfolio,
         ticker
@@ -36,6 +43,29 @@ const addTradeHandler: CustomRequestHandler<Omit<Trade, 'id'>> = async (
     errorResponse(res)
   }
 }
+
+const deleteTradeHandler: CustomRequestHandler<
+  unknown,
+  { trade: string }
+> = async (req, res) => {
+  try {
+    const trade = await getTrade(req.params.trade)
+    if (trade.type === 'BUY') {
+      // INFO: check if deleting this will make the net amount negetive for the ticker
+      const count = await countTotalExcludingOneTrade(trade)
+      if (count < 0) {
+        errorResponse(res, 400, "Can't delete this trade")
+        return
+      }
+    }
+    await deleteTrade(trade.id)
+    res.status(200).json({ success: true }).end()
+  } catch (error) {
+    errorResponse(res)
+  }
+}
+
+router.delete('/:trade', checkTrade('params'), deleteTradeHandler)
 
 router.post(
   '/',

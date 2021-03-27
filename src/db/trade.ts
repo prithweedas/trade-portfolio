@@ -21,8 +21,12 @@ type CountTotalQuantityInPortfolio = (
   portfolio: string,
   ticker: string
 ) => Promise<number>
+type CountTotalExcludingOneTrade = (trade: Trade) => Promise<number>
 type GetAllTrades = (portfolio: string) => Promise<ReadonlyArray<Trade>>
+type GetTrade = (trade: string) => Promise<Trade>
 type GetHoldings = (portfolio: string) => Promise<ReadonlyArray<Holding>>
+type DoesTradeExists = (trade: string) => Promise<boolean>
+type DeleteTrade = (trade: string) => Promise<void>
 
 export const addTrade: AddTrade = async trade => {
   const id = await getNextId('TRADE')
@@ -31,6 +35,12 @@ export const addTrade: AddTrade = async trade => {
     ...trade
   })
   return id
+}
+
+export const getTrade: GetTrade = async trade => {
+  return (await db
+    .collection<Trade>('trade')
+    .findOne({ id: trade }, { projection: { _id: 0 } })) as Trade
 }
 
 export const getAllTrades: GetAllTrades = async portfolio => {
@@ -152,4 +162,55 @@ export const getHoldings: GetHoldings = async portfolio => {
       }
     ])
     .toArray()
+}
+
+export const doesTradeExists: DoesTradeExists = async trade => {
+  const count = await db
+    .collection<Trade>('trade')
+    .countDocuments({ id: trade })
+  return count === 1
+}
+
+export const deleteTrade: DeleteTrade = async trade => {
+  await db.collection<Trade>('trade').deleteOne({ id: trade })
+}
+
+export const countTotalExcludingOneTrade: CountTotalExcludingOneTrade = async (
+  trade: Trade
+) => {
+  const result = await db
+    .collection<Trade>('trade')
+    .aggregate<{ _id: string; total: number }>([
+      {
+        $match: {
+          portfolio: trade.portfolio,
+          ticker: trade.ticker,
+          id: {
+            $ne: trade.id
+          }
+        }
+      },
+      {
+        $project: {
+          ticker: 1,
+          amount: 1,
+          multiplier: {
+            $cond: [{ $eq: ['$type', 'BUY'] }, 1, -1]
+          }
+        }
+      },
+      {
+        $group: {
+          _id: '$ticker',
+          total: {
+            $sum: {
+              $multiply: ['$multiplier', '$amount']
+            }
+          }
+        }
+      }
+    ])
+    .toArray()
+  if (result.length === 0) return 0
+  else return result[0].total
 }
