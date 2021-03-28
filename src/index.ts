@@ -32,7 +32,10 @@ const init = async () => {
   app.use('*', (_, res) => {
     errorResponse(res, 404, 'Not Found')
   })
-  app.listen(PORT)
+  app.listen(PORT, () => {
+    // eslint-disable-next-line no-console
+    console.log(`Server started on port ${PORT}`)
+  })
 }
 
 init()
