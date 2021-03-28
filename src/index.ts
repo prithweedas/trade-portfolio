@@ -24,7 +24,7 @@ const init = async () => {
   }
   app.use(express.json())
 
-  // TODO: setup some logging mechanism
+  // TODO: setup some logging maybe
 
   app.use('/portfolio', portfolioRouter)
   app.use('/trade', tradeRouter)
