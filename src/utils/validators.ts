@@ -55,7 +55,8 @@ const updateTradeRequestSchema: JSONSchemaType<UpdateTradeRequestBody> = {
       type: 'string'
     },
     amount: {
-      type: 'integer'
+      type: 'integer',
+      minimum: 1
     },
     price: {
       type: 'number'

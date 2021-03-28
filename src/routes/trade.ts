@@ -72,29 +72,63 @@ const deleteTradeHandler: CustomRequestHandler<
   }
 }
 
-const x: UpdateTradeRequestBody = {
-  amount: 10,
-  trade: 'sdv',
-  price: 10,
-  type: 'BUY'
-}
-
 const updateTradeHandler: CustomRequestHandler<UpdateTradeRequestBody> = async (
   req,
   res
 ) => {
   try {
     const { trade: tradeId, ...updates } = req.body
+    // INFO: price update
     if ('price' in updates) {
       await updateTrade(tradeId, updates)
       res.status(200).json({ success: true }).end()
       return
     }
     const trade = await getTrade(tradeId)
+    // INFO: trade type update
     if ('type' in updates) {
-      return
+      // INFO: No change
+      if (updates.type === trade.type) {
+        res.status(200).json({ success: true }).end()
+        return
+      }
+      // INFO: no validation needed to change from SELL to BUY
+      if (updates.type === 'BUY') {
+        await updateTrade(tradeId, updates)
+        res.status(200).json({ success: true }).end()
+        return
+      }
+      if (updates.type === 'SELL') {
+        const count = await countTotalExcludingOneTrade(trade)
+        if (count - trade.amount >= 0) {
+          await updateTrade(tradeId, updates)
+          res.status(200).json({
+            succes: true
+          })
+        } else {
+          res.status(400).json({
+            succes: false,
+            error: 'Can not change this trade to SELL'
+          })
+        }
+        return
+      }
     }
+    // INFO: amount of security update
     if ('amount' in updates) {
+      const count = await countTotalExcludingOneTrade(trade)
+      const multiplier = trade.type === 'BUY' ? 1 : -1
+      if (count + updates.amount * multiplier >= 0) {
+        await updateTrade(tradeId, updates)
+        res.status(200).json({
+          succes: true
+        })
+      } else {
+        res.status(400).json({
+          succes: false,
+          error: `Can not change amount to ${updates.amount}`
+        })
+      }
       return
     }
   } catch (error) {
@@ -105,7 +139,7 @@ const updateTradeHandler: CustomRequestHandler<UpdateTradeRequestBody> = async (
 router.patch(
   '/',
   requestvalidator(updateTradeRequestValidator),
-  // checkTrade('body'),
+  checkTrade('body'),
   updateTradeHandler
 )
 
