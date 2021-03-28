@@ -23,6 +23,9 @@ const init = async () => {
     cleanup()
   }
   app.use(express.json())
+
+  // TODO: setup some logging mechanism
+
   app.use('/portfolio', portfolioRouter)
   app.use('/trade', tradeRouter)
   // INFO: 404 handler
