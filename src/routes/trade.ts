@@ -107,7 +107,7 @@ const updateTradeHandler: CustomRequestHandler<UpdateTradeRequestBody> = async (
           })
         } else {
           res.status(400).json({
-            succes: false,
+            success: false,
             error: 'Can not change this trade to SELL'
           })
         }
@@ -121,11 +121,11 @@ const updateTradeHandler: CustomRequestHandler<UpdateTradeRequestBody> = async (
       if (count + updates.amount * multiplier >= 0) {
         await updateTrade(tradeId, updates)
         res.status(200).json({
-          succes: true
+          success: true
         })
       } else {
         res.status(400).json({
-          succes: false,
+          success: false,
           error: `Can not change amount to ${updates.amount}`
         })
       }
