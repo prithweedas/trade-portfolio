@@ -160,7 +160,7 @@ export const getHoldings: GetHoldings = async portfolio => {
           _id: 0,
           amount: '$totalamount',
           avgPrice: {
-            $divide: ['$totalprice', '$totalamount']
+            $round: [{ $divide: ['$totalprice', '$totalamount'] }, 2]
           }
         }
       }

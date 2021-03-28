@@ -103,7 +103,7 @@ const updateTradeHandler: CustomRequestHandler<UpdateTradeRequestBody> = async (
         if (count - trade.amount >= 0) {
           await updateTrade(tradeId, updates)
           res.status(200).json({
-            succes: true
+            success: true
           })
         } else {
           res.status(400).json({
