@@ -6,7 +6,6 @@ const { hideBin } = require('yargs/helpers')
 const { MongoClient } = require('mongodb')
 
 const argv = yargs(hideBin(process.argv)).argv
-
 const client = new MongoClient(argv.connection, {
   useNewUrlParser: true,
   useUnifiedTopology: true
@@ -40,14 +39,20 @@ const tradeCollection = async db => {
 }
 
 async function run() {
-  await client.connect()
-  const db = client.db(argv.database)
-  const counterPromise = counterCollection(db)
-  const portfolioPromise = portfolioCollection(db)
-  const tradePromise = tradeCollection(db)
-  await Promise.all([counterPromise, portfolioPromise, tradePromise])
-  await client.close()
-  process.exit(0)
+  try {
+    await client.connect()
+    const db = client.db(argv.database)
+    const counterPromise = counterCollection(db)
+    const portfolioPromise = portfolioCollection(db)
+    const tradePromise = tradeCollection(db)
+    await Promise.all([counterPromise, portfolioPromise, tradePromise])
+    console.log('Done!')
+  } catch (error) {
+    console.log(error)
+  } finally {
+    await client.close()
+    process.exit(0)
+  }
 }
 
 run()
