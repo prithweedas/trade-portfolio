@@ -14,5 +14,7 @@ docker build -t <name:tag> .
 
 Run the image
 ```bash
-docker run -p <port>:3000 -e MONGO_CONNECTION_STRING=<mongodb connection string> -e MONGO_DB_NAME=<database name> -d <name:tag>
+docker run -p <port>:3000 \
+            -e MONGO_CONNECTION_STRING=<mongodb connection string> \
+            -e MONGO_DB_NAME=<database name> -d <name:tag>
 ```
