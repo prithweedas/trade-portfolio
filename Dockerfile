@@ -14,6 +14,5 @@ COPY yarn.lock ./
 ENV NODE_ENV=production
 RUN yarn
 COPY --from=build /usr/src/app/build/ ./build/
-RUN ls
 EXPOSE 3000
 CMD [ "yarn", "start:prod" ]
